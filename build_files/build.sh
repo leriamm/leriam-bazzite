@@ -1,27 +1,126 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-set -ouex pipefail
+# === repos: Third-party repositories ===
+rpmkeys --import "/etc/pki/rpm-gpg/RPM-GPG-KEY-terra44"
+dnf5 -y copr enable theblackdon/kineticwe
+dnf5 -y copr enable lionheartp/Hyprland
+dnf5 -y copr enable linuxgamerlife/lgl-dnf-helper
+dnf5 -y copr enable linuxgamerlife/lgl-emoji-picker
+dnf5 -y copr enable imput/helium
+sed -i 's/enabled=0/enabled=1/' /etc/yum.repos.d/terra.repo
+curl -L -o /tmp/rpmfusion-free-release-44.noarch.rpm "https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-44.noarch.rpm"
+dnf install -y \
+    /tmp/rpmfusion-free-release-44.noarch.rpm
+rm -f /tmp/*.rpm
 
-# Copy the contents of system_files/ of the git repo to /
-cp -avf "/ctx/system_files"/. /
+# === removals: Packages removed from the base Bazzite image ===
 
-### Install packages
+# pre script (removals)
+# Leftover Bazzite overlay files not owned by any RPM
+# Force Restart Waydroid entry + dead waydroid helper scripts/artwork
+rm -f /usr/share/applications/waydroid-container-restart.desktop
+rm -f /usr/libexec/waydroid-container-restart \
+      /usr/libexec/waydroid-container-start \
+      /usr/libexec/waydroid-container-stop \
+      /usr/libexec/waydroid-fix-controllers
+rm -rf /usr/share/applications/Waydroid
+# Discourse forum launcher
+rm -f /usr/share/applications/discourse.desktop
+# Bazzite Documentation launcher
+rm -f /usr/share/applications/bazzite-documentation.desktop
+# Bazzite System Update launcher (ujust update)
+rm -f /usr/share/applications/system-update.desktop
 
-# Packages can be installed from any enabled yum repo on the image.
-# RPMfusion repos are available by default in ublue main images
-# List of rpmfusion packages can be found here:
-# https://mirrors.rpmfusion.org/mirrorlist?path=free/fedora/updates/43/x86_64/repoview/index.html&protocol=https&redirect=1
+dnf remove -y \
+    waydroid \
+    waydroid-selinux \
+    input-remapper \
+    mariadb \
+    mariadb-server \
+    mariadb-common \
+    mariadb-errmsg \
+    mariadb-connector-c \
+    mariadb-connector-c-config \
+    mariadb-backup \
+    mariadb-cracklib-password-check \
+    mariadb-gssapi-server \
+    bazaar \
+    krunner-bazaar \
+    kde-connect \
+    kdeconnectd \
+    kde-connect-libs \
+    rom-properties \
+    rom-properties-common \
+    rom-properties-kf6 \
+    rom-properties-utils \
+    uupd \
+    topgrade \
+    bazzite-portal
 
-# this installs a package from fedora repos
-dnf5 install -y tmux
+# === desktop: Desktop environment packages ===
 
-# Use a COPR Example:
-#
-# dnf5 -y copr enable ublue-os/staging
-# dnf5 -y install package
-# Disable COPRs so they don't end up enabled on the final image:
-# dnf5 -y copr disable ublue-os/staging
+# pre script (desktop)
+# /opt is a symlink to /var/opt on atomic Fedora — helium-bin's RPM
+if [ -L /opt ]; then
+  rm -f /opt
+fi
 
-#### Example for enabling a System Unit File
+dnf install -y \
+    helium-bin \
+    kineticwe \
+    noctalia-git \
+    qt5ct \
+    qt6ct \
+    nwg-look \
+    kitty \
+    discord \
+    lgl-emoji-picker \
+    lgl-dnf-helper \
+    plasma-discover \
+    plasma-discover-flatpak
 
-systemctl enable podman.socket
+dnf install -y \
+    /ctx/rpms/vm-curator-1.2.1-1.x86_64.rpm
+
+# === media: Media production tools (Firebot, Lightworks) ===
+
+dnf install -y \
+    obs-studio \
+    obs-studio-plugin-browser
+
+dnf install -y \
+    /ctx/rpms/firebot-v5.66.7-linux-x64.rpm \
+    /ctx/rpms/Lightworks-2025.2-56356.rpm
+
+# === cli: Cli packages ===
+
+dnf install -y \
+    btop \
+    zoxide \
+    eza \
+    htop \
+    helix \
+    yazi \
+    git
+
+# === virt: Virtualization packages (vm-curator runtime deps; libudev/polkit are in base Fedora) ===
+
+dnf install -y \
+    qemu-system-x86 \
+    qemu-img \
+    swtpm \
+    edk2-ovmf \
+    virt-viewer \
+    passt
+
+# === system: System tooling baked into the image (dcli-bootc persists across rebuilds) ===
+
+dnf install -y \
+    mediawriter \
+    gwenview \
+    haruna \
+    zathura
+
+# === cleanup ===
+dnf clean all && rm -rf /var/cache/dnf/*
