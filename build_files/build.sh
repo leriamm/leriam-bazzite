@@ -80,8 +80,8 @@ dnf install -y \
     plasma-discover \
     plasma-discover-flatpak
 
-dnf install -y \
-    /ctx/rpms/vm-curator-1.2.1-1.x86_64.rpm
+#dnf install -y \
+#    /ctx/rpms/vm-curator-1.2.1-1.x86_64.rpm
 
 # === media: Media production tools (Firebot, Lightworks) ===
 
