@@ -80,8 +80,8 @@ dnf install -y \
     plasma-discover \
     plasma-discover-flatpak
 
-dnf install -y \
-    /ctx/rpms/vm-curator-1.2.1-1.x86_64.rpm
+#dnf install -y \
+#    /ctx/rpms/vm-curator-1.2.1-1.x86_64.rpm
 
 # === media: Media production tools (Firebot, Lightworks) ===
 
@@ -89,9 +89,9 @@ dnf install -y \
     obs-studio \
     obs-studio-plugin-browser
 
-dnf install -y \
-    /ctx/rpms/firebot-v5.66.7-linux-x64.rpm \
-    /ctx/rpms/Lightworks-2025.2-56356.rpm
+#dnf install -y \
+#    /ctx/rpms/firebot-v5.66.7-linux-x64.rpm \
+#    /ctx/rpms/Lightworks-2025.2-56356.rpm
 
 # === cli: Cli packages ===
 
