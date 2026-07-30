@@ -12,6 +12,7 @@ sed -i 's/enabled=0/enabled=1/' /etc/yum.repos.d/terra.repo
 curl -L -o /tmp/rpmfusion-free-release-44.noarch.rpm "https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-44.noarch.rpm"
 dnf install -y \
     /tmp/rpmfusion-free-release-44.noarch.rpm
+dnf config-manager addrepo --from-repofile=https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo
 rm -f /tmp/*.rpm
 
 # === removals: Packages removed from the base Bazzite image ===
@@ -78,7 +79,9 @@ dnf install -y \
     lgl-emoji-picker \
     lgl-dnf-helper \
     plasma-discover \
-    plasma-discover-flatpak
+    plasma-discover-flatpak \	
+    dnf-plugins-core
+    brave-browser
 
 #dnf install -y \
 #    /ctx/rpms/vm-curator-1.2.1-1.x86_64.rpm
