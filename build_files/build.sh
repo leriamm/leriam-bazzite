@@ -81,7 +81,7 @@ dnf install -y \
     plasma-discover \
     plasma-discover-flatpak \	
     dnf-plugins-core
-    brave-browser
+    brave-browser --skip-unavailable
 
 #dnf install -y \
 #    /ctx/rpms/vm-curator-1.2.1-1.x86_64.rpm
